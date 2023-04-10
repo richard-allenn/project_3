@@ -7,6 +7,7 @@ from sqlalchemy import create_engine, func
 from datetime import datetime
 from dateutil.relativedelta import relativedelta
 
+
 from flask import Flask, jsonify
 
 #################################################
@@ -14,14 +15,14 @@ from flask import Flask, jsonify
 #################################################
 engine = create_engine("postgresql://postgres:postgres@localhost:5432/perth_crimes")
 
+print(engine.url)
+
 # reflect an existing database into a new model
-Base = automap_base()
 
-# reflect the tables
-Base.prepare(autoload_with=engine)
+results = engine.execute("SELECT * FROM perth_crime_data")
+print(results)
 
-# reference to the table
-perth_crime_data = sqlalchemy.Table('perth_crime_data', sqlalchemy.MetaData(), autoload=True, autoload_with=engine)
+
 
 #################################################
 # Flask Setup
@@ -36,65 +37,52 @@ app = Flask(__name__)
 @app.route("/")
 def welcome():
     return """
-    hello! here are the pages available for you to look at:
+    hello! <br/> welcome to the perth crime data offical really good important site<br/>
+    <br/>
 
-    Available Routes:
+    Available Routes:<br/>
 
-        /api/v1.0/dates
+        /api/v1.0/alldata<br/>
 
-        /api/v1.0/crimes
+        /api/v1.0/districts<br/>
 
-        /api/v1.0/districts
+        /api/v1.0/...<br/>
     """
 
-@app.route("/api/v1.0/crimes")
-def get_crimes():
-    # Create our session (link) from Python to the DB
-    session = Session(engine)
+@app.route("/api/v1.0/alldata")
+def get_data():
+    with engine.connect() as conn:
+        result = conn.execute('select * FROM perth_crime_data')
+        headers = result.keys()
+        rows = result.fetchall()
+        data = []
+        for row in rows:
+            data.append(dict(zip(headers, row)))
 
-    """Return a list of crimes"""
-    # Query the data
-    excluded_columns = ['district', 'Month and Year']
-
-    results = [str(column.name) for column in perth_crime_data if column.name not in excluded_columns]
-
-    session.close()
-
-    all_crimes = list(np.ravel(results))
-
-    return jsonify(all_crimes)
+        return jsonify(data)
 
 
 @app.route("/api/v1.0/districts")
 def get_districts():
-    # Create our session (link) from Python to the DB
-    session = Session(engine)
-
-    """Return a list of districts"""
-    # Query the data
-    results = session.query(perth_crime_data.District.distinct()).all()
-
-    session.close()
-
-    all_districts = list(np.ravel(results))
-
-    return jsonify(all_districts)
+    with engine.connect() as conn:
+        result = conn.execute(
+            "SELECT * FROM perth_crime_data"
+            
+            )
+        
+        return jsonify(result)
 
 
 @app.route("/api/v1.0/dates")
 def get_dates():
-    # Create our session (link) from Python to the DB
-    session = Session(engine)
-
-    """Return a list of dates"""
-    # Query all data
-    results = session.query(perth_crime_data.Month_and_Year.distinct()).all()
-
-    session.close()
-
-    all_dates = list(np.ravel(results))
-
-    return jsonify(all_dates)
+    with engine.connect() as conn:
+        result = conn.execute('select * FROM perth_crime_data')
+        headers = result.keys()
+        rows = result.fetchall()
+        data = []
+        for row in rows:
+            data.append(dict(zip(headers, row)))
+        return jsonify(data)
 
 
 if __name__ == "__main__":
