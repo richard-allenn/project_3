@@ -35,21 +35,6 @@ app = Flask(__name__)
 #################################################
 
 @app.route("/")
-def welcome():
-    return """
-    hello! <br/> welcome to the perth crime data offical really good important site<br/>
-    <br/>
-
-    Available Routes:<br/>
-
-        /api/v1.0/alldata<br/>
-
-        /api/v1.0/districts<br/>
-
-        /api/v1.0/...<br/>
-    """
-
-@app.route("/api/v1.0/alldata")
 def get_data():
     with engine.connect() as conn:
         result = conn.execute('select * FROM perth_crime_data')
@@ -61,28 +46,6 @@ def get_data():
 
         return jsonify(data)
 
-
-@app.route("/api/v1.0/districts")
-def get_districts():
-    with engine.connect() as conn:
-        result = conn.execute(
-            "SELECT * FROM perth_crime_data"
-            
-            )
-        
-        return jsonify(result)
-
-
-@app.route("/api/v1.0/dates")
-def get_dates():
-    with engine.connect() as conn:
-        result = conn.execute('select * FROM perth_crime_data')
-        headers = result.keys()
-        rows = result.fetchall()
-        data = []
-        for row in rows:
-            data.append(dict(zip(headers, row)))
-        return jsonify(data)
 
 
 if __name__ == "__main__":
