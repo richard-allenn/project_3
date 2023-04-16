@@ -35,6 +35,17 @@ app = Flask(__name__)
 #################################################
 
 @app.route("/")
+def home():
+    print("server recieved request for 'home' page...")
+    return (
+        f"Available Routes:<br/>"
+        f"/api/v1.0/crimedata<br/>"
+        f"/api/v1.0/stations<br/>"
+        
+    )
+
+
+@app.route("/api/v1.0/crimedata")
 def get_data():
     with engine.connect() as conn:
         result = conn.execute('select * FROM perth_crime_data')
@@ -46,6 +57,18 @@ def get_data():
 
         return jsonify(data)
 
+        
+@app.route("/api/v1.0/stations")
+def get_stations():
+    with engine.connect() as conn:
+        result = conn.execute('select * FROM station_data')
+        headers = result.keys()
+        rows = result.fetchall()
+        data = []
+        for row in rows:
+            data.append(dict(zip(headers, row)))
+
+        return jsonify(data)
 
 
 if __name__ == "__main__":
