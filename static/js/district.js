@@ -24,7 +24,7 @@ let myMap = L.map("map", {
   
       let location = features[i].geometry;
       if(location){
-        L.marker([location.coordinates[1], location.coordinates[0]]).addTo(myMap);
+        L.marker([location.coordinates[1].y, location.coordinates[0].x]).addTo(myMap);
       }
     
     }
