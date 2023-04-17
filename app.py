@@ -9,6 +9,7 @@ from dateutil.relativedelta import relativedelta
 
 
 from flask import Flask, jsonify
+from flask_cors import CORS
 
 #################################################
 # Database Setup
@@ -28,7 +29,7 @@ print(results)
 # Flask Setup
 #################################################
 app = Flask(__name__)
-
+CORS(app, resources={r"/api/*": {"origins": "http://127.0.0.1:5500"}})
 
 #################################################
 # Flask Routes
